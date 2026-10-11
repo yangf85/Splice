@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>14.0</LangVersion>
+    <AssemblyName>Splice</AssemblyName>
+    <RootNamespace>Splice</RootNamespace>
+    <ApplicationIcon>Assets\Splice.ico</ApplicationIcon>
+    <Title>Splice 视频拼接工具</Title>
+    <Product>Splice</Product>
+    <Description>Splice 视频拼接工具 - 批量将 M3U8 视频分片合并为 MP4</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.3.2" />
+    <PackageReference Include="Serilog" Version="4.4.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Splice.png" />
+    <!-- WPF Window.Icon uses a pack URI, so the ICO must also be a WPF Resource. -->
+    <Resource Include="Assets\Splice.ico" />
+  </ItemGroup>
+
+  <!-- FFmpeg 是应用固定运行组件：开发者放入 Tools 后，构建及 VS 发布自动携带 -->
+  <ItemGroup>
+    <Content Include="Tools\ffmpeg.exe" Condition="Exists('Tools\ffmpeg.exe')">
+      <Link>Tools\ffmpeg.exe</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Tools\ffmpeg.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <!-- 防止发布者误发一个没有 FFmpeg、无法合并视频的成品 -->
+  <Target Name="EnsureBundledFfmpegForPublish" BeforeTargets="ComputeFilesToPublish">
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\Tools\ffmpeg.exe')" Text="Splice 缺少随附的 Tools\ffmpeg.exe。请下载受信任的 Windows FFmpeg 静态版本，复制 ffmpeg.exe 至项目 Tools 目录，然后使用 Visual Studio 重新发布。" />
+  </Target>
+</Project>

@@ -1,0 +1,385 @@
+<Window x:Class="Splice.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="Splice 视频拼接工具"
+        Icon="/Assets/Splice.ico"
+        Width="1200" Height="790" MinWidth="960" MinHeight="670"
+        FontFamily="Microsoft YaHei UI" FontSize="13"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None" ResizeMode="CanResize" AllowsTransparency="False"
+        UseLayoutRounding="True" SnapsToDevicePixels="True"
+        Background="{StaticResource Splice.Page}"
+        AllowDrop="True" DragEnter="Window_DragEnter" Drop="Window_Drop"
+        Closing="Window_Closing">
+
+    <!-- 保留原生窗口缩放、Snap、拖动与双击最大化；仅接管标题栏外观。 -->
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="60" ResizeBorderThickness="6"
+                            GlassFrameThickness="0" CornerRadius="0"
+                            UseAeroCaptionButtons="False" />
+    </shell:WindowChrome.WindowChrome>
+
+    <materialDesign:DialogHost Identifier="Splice.Notifications">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="75" />
+        </Grid.RowDefinitions>
+
+        <!-- 唯一品牌标题栏：使用高清原始 PNG，操作按钮为 PackIcon。 -->
+        <Border Grid.Row="0" Background="{StaticResource Splice.HeaderGradient}"
+                BorderBrush="{StaticResource Splice.Cyan}" BorderThickness="0,0,0,1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
+                    <Image Source="/Assets/Splice.png" Width="50" Height="50"
+                           Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"
+                           SnapsToDevicePixels="True" UseLayoutRounding="True"
+                           ToolTip="Splice 视频拼接工具" />
+                    <TextBlock Text="Splice 视频拼接工具" Foreground="White" FontWeight="SemiBold"
+                               FontSize="17" VerticalAlignment="Center" Margin="12,0,0,0" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,20,0">
+                    <materialDesign:PackIcon Kind="ShieldCheck" Width="16" Height="16"
+                                             Foreground="#69E2B0" VerticalAlignment="Center" Margin="0,0,7,0" />
+                    <TextBlock Text="{Binding FfmpegStatusText}" Foreground="#D7EAFF"
+                               FontSize="12" VerticalAlignment="Center" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Stretch">
+                    <Button Style="{StaticResource Splice.CaptionButton}"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                            ToolTip="最小化" AutomationProperties.Name="最小化"
+                            Click="MinimizeButton_Click">
+                        <materialDesign:PackIcon Kind="WindowMinimize" Width="18" Height="18" />
+                    </Button>
+                    <Button Style="{StaticResource Splice.CaptionButton}"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                            ToolTip="最大化或还原" AutomationProperties.Name="最大化或还原"
+                            Click="MaximizeButton_Click">
+                        <Grid Width="18" Height="18">
+                            <materialDesign:PackIcon Kind="WindowMaximize" Width="18" Height="18">
+                                <materialDesign:PackIcon.Style>
+                                    <Style TargetType="materialDesign:PackIcon">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                                         Value="Maximized">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </materialDesign:PackIcon.Style>
+                            </materialDesign:PackIcon>
+                            <materialDesign:PackIcon Kind="WindowRestore" Width="18" Height="18">
+                                <materialDesign:PackIcon.Style>
+                                    <Style TargetType="materialDesign:PackIcon">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                                         Value="Maximized">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </materialDesign:PackIcon.Style>
+                            </materialDesign:PackIcon>
+                        </Grid>
+                    </Button>
+                    <Button Style="{StaticResource Splice.CaptionCloseButton}"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                            ToolTip="关闭" AutomationProperties.Name="关闭"
+                            Click="CloseButton_Click">
+                        <materialDesign:PackIcon Kind="Close" Width="19" Height="19" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" Margin="26,19,26,18">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" MinHeight="170" />
+            </Grid.RowDefinitions>
+
+            <!-- 页面说明 -->
+            <Grid Grid.Row="0" Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="M3U8 批量合并" FontSize="23" FontWeight="Bold"
+                               Foreground="{StaticResource Splice.Ink}" />
+                    <TextBlock Text="选择迅雷下载文件夹，将视频片段快速封装为 MP4；输出文件按文件夹命名。"
+                               Style="{StaticResource Splice.Caption}" Margin="0,5,0,0" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <materialDesign:PackIcon Kind="ShieldCheck" Width="18" Height="18"
+                                             Foreground="{StaticResource Splice.Success}" Margin="0,0,7,0" />
+                    <TextBlock Text="直接封装 · 不重新编码" FontSize="12"
+                               Foreground="{StaticResource Splice.Muted}" />
+                </StackPanel>
+            </Grid>
+
+            <!-- 文件夹导入和输出路径；无高级 FFmpeg 设置入口 -->
+            <Border Grid.Row="1" Style="{StaticResource Splice.Card}" Margin="0,0,0,17">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="1" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Margin="18,13">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="添加视频文件夹" FontSize="15" FontWeight="SemiBold"
+                                       Foreground="{StaticResource Splice.Ink}" />
+                            <TextBlock Text="可多选，也可以将文件夹拖进窗口；自动识别其中的 M3U8。"
+                                       Style="{StaticResource Splice.Caption}" Margin="0,4,0,0" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Command="{Binding ImportSubfoldersCommand}" Style="{StaticResource Splice.OutlineButton}" Margin="0,0,9,0"
+                                    ToolTip="自动添加指定父目录的一级子文件夹">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="FolderMultiple" Width="16" Height="16" />
+                                    <TextBlock Text="导入父目录" Margin="7,0,0,0" />
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding AddFoldersCommand}" Style="{StaticResource Splice.FilledButton}" MinWidth="125">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Plus" Width="18" Height="18" />
+                                    <TextBlock Text="添加文件夹" Margin="6,0,0,0" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                    <Border Grid.Row="1" Background="{StaticResource Splice.Stroke}" />
+                    <Grid Grid.Row="2" Margin="18,13">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="输出目录" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,8" />
+                            <TextBox Text="{Binding OutputDirectory, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                     IsReadOnly="{Binding IsBusy}" Style="{StaticResource Splice.Input}"
+                                     ToolTip="MP4 将保存在此文件夹" />
+                        </StackPanel>
+                        <Button Grid.Column="1" Content="更改位置" Command="{Binding BrowseOutputCommand}"
+                                Style="{StaticResource Splice.OutlineButton}" VerticalAlignment="Bottom"
+                                Margin="10,0,8,0" />
+                        <Button Grid.Column="2" Command="{Binding OpenOutputDirectoryCommand}"
+                                Style="{StaticResource Splice.OutlineButton}" VerticalAlignment="Bottom"
+                                ToolTip="在 Windows 资源管理器中打开输出目录">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="FolderOpenOutline" Width="16" Height="16" />
+                                <TextBlock Text="打开输出目录" Margin="6,0,0,0" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- 任务标题和摘要，替代旧版四张统计卡片 -->
+            <Grid Grid.Row="2" Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="合并任务" FontWeight="SemiBold" FontSize="17"
+                               Foreground="{StaticResource Splice.Ink}" Margin="0,0,16,0" />
+                    <TextBlock Text="全部" Foreground="{StaticResource Splice.Muted}" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding TotalJobs}" Foreground="{StaticResource Splice.Ink}" FontWeight="SemiBold"
+                               VerticalAlignment="Center" Margin="5,0,13,0" />
+                    <TextBlock Text="待处理" Foreground="{StaticResource Splice.Muted}" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding PendingJobs}" Foreground="#0878EE" FontWeight="SemiBold"
+                               VerticalAlignment="Center" Margin="5,0,13,0" />
+                    <TextBlock Text="完成" Foreground="{StaticResource Splice.Muted}" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding CompletedJobs}" Foreground="{StaticResource Splice.Success}" FontWeight="SemiBold"
+                               VerticalAlignment="Center" Margin="5,0,13,0" />
+                    <TextBlock Text="失败 / 取消" Foreground="{StaticResource Splice.Muted}" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding FailedJobs}" Foreground="{StaticResource Splice.Danger}" FontWeight="SemiBold"
+                               VerticalAlignment="Center" Margin="5,0,0,0" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Command="{Binding RemoveSelectedCommand}" Style="{StaticResource Splice.TextButton}" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="MinusCircleOutline" Width="16" Height="16" />
+                            <TextBlock Text="移除选中" Margin="6,0,0,0" />
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding ClearCommand}" Style="{StaticResource Splice.TextButton}">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="DeleteOutline" Width="16" Height="16" />
+                            <TextBlock Text="清空列表" Margin="6,0,0,0" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- 无卡片堆叠：连续列表、轻分隔线、可伸缩 -->
+            <Border Grid.Row="3" Style="{StaticResource Splice.Card}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="39" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Background="#EAF3FE" BorderThickness="0,0,0,1"
+                            BorderBrush="{StaticResource Splice.Stroke}" Padding="15,9">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*" />
+                                <ColumnDefinition Width="125" />
+                                <ColumnDefinition Width="2*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="文件名称 / 源目录" Style="{StaticResource Splice.TableHeader}" />
+                            <TextBlock Grid.Column="1" Text="状态" Style="{StaticResource Splice.TableHeader}" />
+                            <TextBlock Grid.Column="2" Text="处理进度" Style="{StaticResource Splice.TableHeader}" />
+                        </Grid>
+                    </Border>
+                    <Grid Grid.Row="1">
+                        <ListBox ItemsSource="{Binding Jobs}" SelectedItem="{Binding SelectedJob, Mode=TwoWay}"
+                                 ItemContainerStyle="{StaticResource Splice.JobItem}"
+                                 BorderThickness="0" Background="White" Padding="0"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 VirtualizingPanel.IsVirtualizing="True"
+                                 VirtualizingPanel.VirtualizationMode="Recycling">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderThickness="0,0,0,1" BorderBrush="#E1EBF7" Padding="15,12">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="3*" />
+                                                <ColumnDefinition Width="125" />
+                                                <ColumnDefinition Width="2*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid Grid.Column="0" Margin="0,0,16,0" VerticalAlignment="Center">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="35" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Border Width="31" Height="31" Background="#DBEFFF" CornerRadius="0">
+                                                    <materialDesign:PackIcon Kind="FileVideo" Width="19" Height="19"
+                                                                             Foreground="#0878EE" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                </Border>
+                                                <Grid Grid.Column="1" Margin="6,0,0,0">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="Auto" />
+                                                    </Grid.RowDefinitions>
+                                                    <TextBlock Text="{Binding OutputFileName}" FontWeight="SemiBold" FontSize="12"
+                                                               TextTrimming="CharacterEllipsis" Foreground="{StaticResource Splice.Ink}" />
+                                                    <TextBlock Grid.Row="1" Text="{Binding SourceDirectory}"
+                                                               ToolTip="{Binding SourceDirectory}" Style="{StaticResource Splice.Caption}"
+                                                               TextTrimming="CharacterEllipsis" Margin="0,3,0,0" />
+                                                </Grid>
+                                            </Grid>
+                                            <Border Grid.Column="1" Style="{StaticResource Splice.JobStatus}"
+                                                    HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Status}" Style="{StaticResource Splice.JobStatusText}" />
+                                            </Border>
+                                            <Grid Grid.Column="2" VerticalAlignment="Center" Margin="0,0,8,0">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <ProgressBar Minimum="0" Maximum="100" Value="{Binding ProgressPercent}"
+                                                             IsIndeterminate="{Binding IsIndeterminate}" Height="5" BorderThickness="0" Foreground="{StaticResource Splice.Brand}" Background="#DBEAFB" />
+                                                <Grid Grid.Row="1" Margin="0,7,0,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{Binding Detail}" Style="{StaticResource Splice.Caption}"
+                                                               TextTrimming="CharacterEllipsis" ToolTip="{Binding Detail}" FontSize="11" />
+                                                    <TextBlock Grid.Column="1" Text="{Binding ProgressPercent, StringFormat={}{0:0}%}"
+                                                               FontSize="11" Foreground="#5E7697" Margin="10,0,0,0" />
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <Border Background="White" IsHitTestVisible="False">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasJobs}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <materialDesign:PackIcon Kind="FolderOpenOutline" Width="40" Height="40"
+                                                         Foreground="#86A6CB" HorizontalAlignment="Center" Margin="0,0,0,10" />
+                                <TextBlock Text="还没有合并任务" FontSize="15" FontWeight="SemiBold"
+                                           TextAlignment="Center" Foreground="{StaticResource Splice.Ink}" />
+                                <TextBlock Text="添加文件夹，或将迅雷下载文件夹拖入此窗口"
+                                           TextAlignment="Center" Style="{StaticResource Splice.Caption}" Margin="0,7,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 始终可见：处理状态 / 总进度 / 开始停止 -->
+        <Border Grid.Row="2" Background="White" BorderThickness="0,1,0,0" BorderBrush="{StaticResource Splice.Stroke}">
+            <Grid Margin="26,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel VerticalAlignment="Center" Margin="0,0,28,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding StatusMessage}" Foreground="#547190" FontSize="12"
+                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Grid.Column="1" Text="{Binding OverallProgress, StringFormat={}{0:0}%}"
+                                   Foreground="#0878EE" FontWeight="SemiBold" FontSize="12" Margin="14,0,0,0" />
+                    </Grid>
+                    <ProgressBar Value="{Binding OverallProgress}" Minimum="0" Maximum="100" Height="5" Margin="0,9,0,0" Foreground="{StaticResource Splice.Brand}" Background="#DBEAFB" />
+                </StackPanel>
+                <Button Grid.Column="1" Command="{Binding CancelCommand}" Style="{StaticResource Splice.OutlineButton}"
+                        MinWidth="100" Margin="0,0,9,0">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Stop" Width="16" Height="16" />
+                        <TextBlock Text="停止" Margin="7,0,0,0" />
+                    </StackPanel>
+                </Button>
+                <Button Grid.Column="2" Command="{Binding StartCommand}" Style="{StaticResource Splice.FilledButton}" MinWidth="144">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Play" Width="16" Height="16" />
+                        <TextBlock Text="开始合并" Margin="7,0,0,0" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Border>
+    </Grid>
+    </materialDesign:DialogHost>
+</Window>

@@ -1,0 +1,15 @@
+root = true
+
+[*.cs]
+charset = utf-8
+indent_style = space
+indent_size = 4
+end_of_line = crlf
+insert_final_newline = true
+dotnet_sort_system_directives_first = true
+
+[*.{xaml,csproj,slnx}]
+charset = utf-8
+indent_style = space
+indent_size = 2
+insert_final_newline = true

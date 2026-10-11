@@ -1,0 +1,28 @@
+<UserControl x:Class="Splice.Views.Dialogs.ConfirmExitDialogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             MinWidth="390" MaxWidth="500" FontFamily="Microsoft YaHei UI">
+    <Border Padding="22" Background="White" CornerRadius="0">
+        <StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                <materialDesign:PackIcon Kind="AlertOutline" Width="24" Height="24"
+                    Foreground="#D18B23" Margin="0,0,12,0" />
+                <TextBlock Text="正在合并视频" FontWeight="SemiBold" FontSize="17"
+                    Foreground="#142B46" VerticalAlignment="Center" />
+            </StackPanel>
+            <TextBlock Text="确定停止当前任务并退出 Splice 吗？已完成的 MP4 会保留；正在合并的临时文件会尽力清理。"
+                       TextWrapping="Wrap" FontSize="13" Foreground="#415C7A" Margin="0,0,0,22" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="继续合并" MinWidth="100" Margin="0,0,12,0"
+                    Style="{StaticResource Splice.OutlineButton}"
+                    Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                    CommandParameter="Continue" />
+                <Button Content="停止并退出" MinWidth="112"
+                    Style="{StaticResource Splice.FilledButton}"
+                    Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                    CommandParameter="Stop" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>

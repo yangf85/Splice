@@ -1,0 +1,202 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <!-- Flat, angular Material Design styling: no rounded corners. -->
+    <SolidColorBrush x:Key="Splice.Page" Color="#F1F6FC" />
+    <SolidColorBrush x:Key="Splice.Surface" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="Splice.Ink" Color="#132B4B" />
+    <SolidColorBrush x:Key="Splice.Muted" Color="#65809E" />
+    <SolidColorBrush x:Key="Splice.Stroke" Color="#D9E6F5" />
+    <SolidColorBrush x:Key="Splice.Brand" Color="#0878EE" />
+    <SolidColorBrush x:Key="Splice.Success" Color="#0D825E" />
+    <SolidColorBrush x:Key="Splice.Danger" Color="#CB3F57" />
+
+    <!-- Technology-blue brand accents for a deliberately square, single-page UI. -->
+    <LinearGradientBrush x:Key="Splice.HeaderGradient" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#071D3B" Offset="0" />
+        <GradientStop Color="#0D326A" Offset="0.7" />
+        <GradientStop Color="#10549F" Offset="1" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="Splice.BrandTint" Color="#E9F4FF" />
+    <SolidColorBrush x:Key="Splice.Cyan" Color="#26C5F3" />
+    <SolidColorBrush x:Key="Splice.BrandStrong" Color="#075FC2" />
+
+    <!-- Caption buttons use native window actions but do not inherit rounded Material buttons. -->
+    <Style x:Key="Splice.CaptionButton" TargetType="Button">
+        <Setter Property="Width" Value="48" />
+        <Setter Property="Height" Value="60" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Cursor" Value="Arrow" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Surface" Background="{TemplateBinding Background}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Surface" Property="Background" Value="#274E81" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Surface" Property="Background" Value="#3B699E" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="Splice.CaptionCloseButton" TargetType="Button" BasedOn="{StaticResource Splice.CaptionButton}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Surface" Background="{TemplateBinding Background}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Surface" Property="Background" Value="#CC3446" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Surface" Property="Background" Value="#A51E31" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="Splice.Card" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Splice.Surface}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Splice.Stroke}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="0" />
+    </Style>
+    <Style x:Key="Splice.Title" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="17" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource Splice.Ink}" />
+    </Style>
+    <Style x:Key="Splice.TableHeader" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="#5E7697" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style x:Key="Splice.Caption" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource Splice.Muted}" />
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+
+    <Style x:Key="Splice.FilledButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
+        <Setter Property="materialDesign:ButtonAssist.CornerRadius" Value="0" />
+        <Setter Property="Background" Value="{StaticResource Splice.Brand}" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="MinHeight" Value="41" />
+        <Setter Property="Padding" Value="16,8" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="BorderBrush" Value="{StaticResource Splice.BrandStrong}" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style x:Key="Splice.OutlineButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignOutlinedButton}">
+        <Setter Property="materialDesign:ButtonAssist.CornerRadius" Value="0" />
+        <Setter Property="MinHeight" Value="40" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource Splice.Ink}" />
+        <Setter Property="BorderBrush" Value="#BDD4EE" />
+        <Setter Property="Background" Value="White" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style x:Key="Splice.TextButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+        <Setter Property="materialDesign:ButtonAssist.CornerRadius" Value="0" />
+        <Setter Property="MinHeight" Value="34" />
+        <Setter Property="Padding" Value="8,5" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource Splice.Muted}" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <!-- Custom flat TextBox template to override any round-corner defaults from the theme. -->
+    <Style x:Key="Splice.Input" TargetType="TextBox">
+        <Setter Property="MinHeight" Value="40" />
+        <Setter Property="Padding" Value="10,6" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Background" Value="White" />
+        <Setter Property="BorderBrush" Value="#BBD1E9" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Foreground" Value="{StaticResource Splice.Ink}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="InputBorder" Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="0"
+                            Padding="{TemplateBinding Padding}">
+                        <ScrollViewer x:Name="PART_ContentHost" Focusable="False"
+                                      HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter TargetName="InputBorder" Property="BorderBrush" Value="{StaticResource Splice.Brand}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="InputBorder" Property="Background" Value="#EDF4FB" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="Splice.JobItem" TargetType="ListBoxItem">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="ItemSurface" Background="Transparent" CornerRadius="0">
+                        <ContentPresenter Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          HorizontalAlignment="Stretch" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="ItemSurface" Property="Background" Value="#DDEFFF" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="ItemSurface" Property="Background" Value="#EFF7FF" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="Splice.JobStatus" TargetType="Border">
+        <Setter Property="Background" Value="#EAF2FB" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="Padding" Value="9,5" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Status}" Value="正在合并"><Setter Property="Background" Value="#E0EFFF" /></DataTrigger>
+            <DataTrigger Binding="{Binding Status}" Value="已完成"><Setter Property="Background" Value="#DDF6EA" /></DataTrigger>
+            <DataTrigger Binding="{Binding Status}" Value="失败"><Setter Property="Background" Value="#FDE6EC" /></DataTrigger>
+            <DataTrigger Binding="{Binding Status}" Value="已取消"><Setter Property="Background" Value="#FFF0DA" /></DataTrigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="Splice.JobStatusText" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="#5F7895" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Status}" Value="正在合并"><Setter Property="Foreground" Value="#096FE4" /></DataTrigger>
+            <DataTrigger Binding="{Binding Status}" Value="已完成"><Setter Property="Foreground" Value="#0F835F" /></DataTrigger>
+            <DataTrigger Binding="{Binding Status}" Value="失败"><Setter Property="Foreground" Value="#B93C53" /></DataTrigger>
+            <DataTrigger Binding="{Binding Status}" Value="已取消"><Setter Property="Foreground" Value="#906220" /></DataTrigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>
